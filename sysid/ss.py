@@ -19,18 +19,27 @@ class StateSpaceDiscreteLinear(object):
     """
 
     def __init__(self, A, B, C, D, Q, R, dt):
-        #pylint: disable=too-many-arguments
-        self.A = np.array(np.matrix(A))
-        self.B = np.array(np.matrix(B))
-        self.C = np.array(np.matrix(C))
-        self.D = np.array(np.matrix(D))
-        self.Q = np.array(np.matrix(Q))
-        self.R = np.array(np.matrix(R))
+
         self.dt = dt
 
-        n_x = np.matrix(A).shape[0]
-        n_u = np.matrix(B).shape[1]
-        n_y = np.matrix(C).shape[0]
+        # self.A = np.array(np.matrix(A))
+        # self.B = np.array(np.matrix(B))
+        # self.C = np.array(np.matrix(C))
+        # self.D = np.array(np.matrix(D))
+        # self.Q = np.array(np.matrix(Q))
+        # self.R = np.array(np.matrix(R))
+        # n_x = np.matrix(A).shape[0]
+        # n_u = np.matrix(B).shape[1]
+        # n_y = np.matrix(C).shape[0]
+        self.A = np.array(A)
+        self.B = np.array(B)
+        self.C = np.array(C)
+        self.D = np.array(D)
+        self.Q = np.array(Q)
+        self.R = np.array(R)
+        n_x = A.shape[0]
+        n_u = B.shape[1]
+        n_y = C.shape[0]
 
         assert self.A.shape[1] == n_x
         assert self.B.shape[0] == n_x
@@ -43,7 +52,7 @@ class StateSpaceDiscreteLinear(object):
         # assert self.R.shape[1] == n_u
         assert self.R.shape[0] == n_y  #TODO:
         assert self.R.shape[1] == n_y  #TODO:
-        assert np.matrix(dt).shape == (1, 1)
+        # assert np.matrix(dt).shape == (1, 1)
 
     def dynamics(self, x, u, w):
         """
@@ -215,15 +224,15 @@ class StateSpaceDataArray(object):
 
     def __init__(self, t, x, y, u):
 
-        # self.t = t
-        # self.x = x
-        # self.y = y
-        # self.u = u
-
         self.t = np.array(np.matrix(t))
         self.x = np.array(np.matrix(x))
         self.y = np.array(np.matrix(y))
         self.u = np.array(np.matrix(u))
+
+        # self.t = t
+        # self.x = x
+        # self.y = y
+        # self.u = u
 
         # assert self.t.shape[0] == 1
         # assert self.x.shape[0] < self.x.shape[1]
