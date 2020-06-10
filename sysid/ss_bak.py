@@ -411,10 +411,10 @@ class StateSpaceDataArray(object):
 
     def __init__(self, t, x, y, u):
 
-        self.t = np.matrix(t)
-        self.x = np.matrix(x)
-        self.y = np.matrix(y)
-        self.u = np.matrix(u)
+        self.t = np.array(np.matrix(t))
+        self.x = np.array(np.matrix(x))
+        self.y = np.array(np.matrix(y))
+        self.u = np.array(np.matrix(u))
 
         assert self.t.shape[0] == 1
         assert self.x.shape[0] < self.x.shape[1]

@@ -94,17 +94,16 @@ class StateSpaceDiscreteLinear(object):
         v = np.array(np.matrix(v))  # TODO
         assert x.shape[1] == 1  # TODO
         assert u.shape[1] == 1  # TODO
-        # assert v.shape[1] == 1  # TODO
+        assert v.shape[1] == 1  # TODO
 
         # print("self.C.shape: {}, x.shape: {}, self.D.shape: {}, u.shape: {}, v.shape: {}".format(self.C.shape, x.shape, self.D.shape, u.shape, v.shape))
         # return self.C*x + self.D*u + v
 
-        # m1 = self.C @ x
-        # m2 = self.D @ u
-        # m3 = m1 + m2
-        # m4 = m3 + v
-        # return m4
-        return self.C @ x + self.D @ u + v
+        m1 = self.C @ x
+        m2 = self.D @ u
+        m3 = m1 + m2
+        m4 = m3 + v
+        return m4
 
     def simulate(self, f_u, x0, tf):
         """
@@ -222,10 +221,10 @@ class StateSpaceDataArray(object):
 
     def __init__(self, t, x, y, u):
 
-        self.t = t
-        self.x = x
-        self.y = y
-        self.u = u
+        self.t = np.array(np.matrix(t))
+        self.x = np.array(np.matrix(x))
+        self.y = np.array(np.matrix(y))
+        self.u = np.array(np.matrix(u))
 
         # assert self.t.shape[0] == 1
         assert self.x.shape[0] < self.x.shape[1]

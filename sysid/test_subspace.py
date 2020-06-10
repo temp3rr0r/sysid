@@ -192,6 +192,8 @@ class TestSubspace(unittest.TestCase):
         """
         Subspace deterministic algorithm (MIMO).
         """
+        import sysid
+        import sysid.subspace
         ss2 = sysid.StateSpaceDiscreteLinear(
             A=np.matrix([[0, 0.1, 0.2],
                          [0.2, 0.3, 0.4],
@@ -234,43 +236,6 @@ class TestSubspace(unittest.TestCase):
                          label='$y_{:d}$ id'.format(i))
                 plt.legend()
                 plt.grid()
-
-    def test_subspace_det_algo2_mimo(self):
-        ss2 = sysid.ss.StateSpaceDiscreteLinear(
-            A=np.array([[0, 0.1, 0.2],
-                         [0.2, 0.3, 0.4],
-                         [0.4, 0.3, 0.2]]),
-            B=np.array([[1, 0],
-                         [0, 1],
-                         [0, -1]]),
-            C=np.array([[1, 0, 0],
-                         [0, 1, 0]]),
-            D=np.array([[0, 0],
-                         [0, 0]]),
-            Q=np.diag([0.01, 0.01, 0.01]), R=np.diag([0.01, 0.01]), dt=0.1)
-        np.random.seed(1234)
-        prbs1 = sysid.prbs(1000)
-        prbs2 = sysid.prbs(1000)
-        def f_prbs_2d(t, x, i):
-            i = i % 1000
-            return 2 * np.array([[prbs1[i]-0.5], [prbs2[i]-0.5]])
-        tf = 8
-        data = ss2.simulate(
-            f_u=f_prbs_2d,
-            x0=np.array([[0, 0, 0]]).T,
-            tf=tf)
-        ss2_id = sysid.subspace_det_algo1(
-            y=data.y, u=data.u,
-            # y=np.matrix(data.y), u=np.matrix(data.u),
-            f=5, p=5, s_tol=0.1, dt=ss2.dt)
-        data_id = ss2_id.simulate(
-            f_u=f_prbs_2d,
-            # x0=np.matrix(np.zeros(ss2_id.A.shape[0])).T, tf=tf)
-            x0=np.array([[0, 0, 0]]).T,
-            tf=tf)
-
-        nrms = sysid.nrms(data_id.y, data.y)
-        self.assertGreater(nrms, 0.9)
 
 
 if __name__ == "__main__":

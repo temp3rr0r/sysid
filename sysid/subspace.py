@@ -43,7 +43,7 @@ def project_oblique(B, C):
     Projects along rowspace of B onto rowspace of C.
     """
     proj_B_perp = project_perp(B)
-    return proj_B_perp @ linalg.inv(C @ proj_B_perp) @ C
+    return proj_B_perp @ linalg.pinv(C @ proj_B_perp) @ C
 
 
 def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
@@ -167,11 +167,11 @@ def nrms(data_fit, data_true):
     Normalized root mean square error.
     """
     # root mean square error
-    rms = np.mean(np.linalg.norm(data_fit - data_true, axis=0))
+    rms = np.mean(np.linalg.norm(np.matrix(data_fit) - np.matrix(data_true), axis=0))
 
     # normalization factor is the max - min magnitude, or 2 times max dist from mean
-    norm_factor = 2 * \
-        np.linalg.norm(data_true - np.mean(data_true, axis=1), axis=0).max()
+    norm_factor = 2 * np.linalg.norm(data_true - np.mean(np.matrix(data_true), axis=1), axis=0).max()
+
     return (norm_factor - rms)/norm_factor
 
 
