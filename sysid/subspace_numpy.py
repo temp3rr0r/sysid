@@ -5,8 +5,6 @@ It enforces that matrices are used instead of arrays
 to avoid dimension conflicts.
 """
 import numpy as np
-# import cupy as np
-
 from scipy import linalg
 
 from . import ss
@@ -29,7 +27,7 @@ def project(A):
     """
     Creates a projection matrix onto the rowspace of A.
     """
-    return A.T @ linalg.pinv(A @ A.T) @ A
+    return A.T @ linalg.inv(A @ A.T) @ A
 
 
 def project_perp(A):

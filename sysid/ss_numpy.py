@@ -2,7 +2,6 @@
 This module performs system identification.
 """
 import numpy as np
-# import cupy as np
 
 import scipy.linalg
 import matplotlib.pyplot as plt
@@ -137,13 +136,12 @@ class StateSpaceDiscreteLinear(object):
         data = StateSpaceDataList([], [], [], [])
         i = 0
 
-        # n_x = np.matrix(self.A).shape[0]  # TODO
-        # n_u = np.matrix(self.B).shape[1]
-        # n_y = np.matrix(self.C).shape[0]
-
-        n_x = self.A.shape[0]
-        n_u = self.B.shape[1]
-        n_y = self.C.shape[0]
+        # n_x = self.A.shape[0]
+        # n_y = self.C.shape[0]
+        # n_u = self.B.shape[1]  # TODO
+        n_x = np.matrix(self.A).shape[0]
+        n_u = np.matrix(self.B).shape[1]
+        n_y = np.matrix(self.C).shape[0]
 
         # assert np.matrix(f_u(0, x0, 0)).shape[1] == 1  # TODO
         # assert np.matrix(f_u(0, x0, 0)).shape[0] == n_u  # TODO

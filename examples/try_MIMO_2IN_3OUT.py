@@ -47,7 +47,7 @@ dt = 1
 plot_stuff = False
 
 # TODO: check with randn 500 IN, 3 OUT
-data_u = np.random.randn(250, tf)
+data_u = np.random.randn(50, tf)
 data_y = np.random.randn(3, tf)
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))
@@ -80,4 +80,5 @@ data3_id = ss3_id.simulate(
 #                 label='$y_{:d}$ id'.format(i))
 #         pl.legend()
 #         pl.grid()
+
 print('fit {:f}%'.format(100*sysid.subspace.nrms(data3_id.y, data_y[:, -1:])))
