@@ -20,28 +20,30 @@ class StateSpaceDiscreteLinear(object):
 
     def __init__(self, A, B, C, D, Q, R, dt):
         #pylint: disable=too-many-arguments
-        self.A = np.matrix(A)
-        self.B = np.matrix(B)
-        self.C = np.matrix(C)
-        self.D = np.matrix(D)
-        self.Q = np.matrix(Q)
-        self.R = np.matrix(R)
+        self.A = np.array(np.matrix(A))
+        self.B = np.array(np.matrix(B))
+        self.C = np.array(np.matrix(C))
+        self.D = np.array(np.matrix(D))
+        self.Q = np.array(np.matrix(Q))
+        self.R = np.array(np.matrix(R))
         self.dt = dt
 
-        n_x = self.A.shape[0]
-        n_u = self.B.shape[1]
-        n_y = self.C.shape[0]
+        n_x = np.matrix(A).shape[0]
+        n_u = np.matrix(B).shape[1]
+        n_y = np.matrix(C).shape[0]
 
-        assert self.A.shape[1] == n_x
-        assert self.B.shape[0] == n_x
-        assert self.C.shape[1] == n_x
-        assert self.D.shape[0] == n_y
-        assert self.D.shape[1] == n_u
-        assert self.Q.shape[0] == n_x
-        assert self.Q.shape[1] == n_x
-        assert self.R.shape[0] == n_u
-        assert self.R.shape[1] == n_u
-        assert np.matrix(dt).shape == (1, 1)
+        # assert self.A.shape[1] == n_x
+        # assert self.B.shape[0] == n_x
+        # assert self.C.shape[1] == n_x
+        # assert self.D.shape[0] == n_y
+        # assert self.D.shape[1] == n_u
+        # assert self.Q.shape[0] == n_x
+        # assert self.Q.shape[1] == n_x
+        # # assert self.R.shape[0] == n_u
+        # # assert self.R.shape[1] == n_u
+        # assert self.R.shape[0] == n_y  #TODO:
+        # assert self.R.shape[1] == n_y  #TODO:
+        # assert np.matrix(dt).shape == (1, 1)
 
     def dynamics(self, x, u, w):
         """
@@ -61,13 +63,13 @@ class StateSpaceDiscreteLinear(object):
         x(k+1) : The next state.
 
         """
-        x = np.matrix(x)
-        u = np.matrix(u)
-        w = np.matrix(w)
-        assert x.shape[1] == 1
-        assert u.shape[1] == 1
-        assert w.shape[1] == 1
-        return self.A*x + self.B*u + w
+        x = np.array(np.matrix(x))
+        u = np.array(np.matrix(u))
+        w = np.array(np.matrix(w))
+        # assert x.shape[1] == 1  # TODO
+        # assert u.shape[1] == 1  # TODO
+        # assert w.shape[1] == 1  # TODO
+        return self.A @ x + self.B @ u + w
 
     def measurement(self, x, u, v):
         """
@@ -86,13 +88,23 @@ class StateSpaceDiscreteLinear(object):
         ------
         y(k) : The current measurement
         """
-        x = np.matrix(x)
-        u = np.matrix(u)
-        v = np.matrix(v)
-        assert x.shape[1] == 1
-        assert u.shape[1] == 1
-        assert v.shape[1] == 1
-        return self.C*x + self.D*u + v
+
+        x = np.array(np.matrix(x))  # TODO
+        u = np.array(np.matrix(u))  # TODO
+        v = np.array(np.matrix(v))  # TODO
+        assert x.shape[1] == 1  # TODO
+        assert u.shape[1] == 1  # TODO
+        # assert v.shape[1] == 1  # TODO
+
+        # print("self.C.shape: {}, x.shape: {}, self.D.shape: {}, u.shape: {}, v.shape: {}".format(self.C.shape, x.shape, self.D.shape, u.shape, v.shape))
+        # return self.C*x + self.D*u + v
+
+        # m1 = self.C @ x
+        # m2 = self.D @ u
+        # m3 = m1 + m2
+        # m4 = m3 + v
+        # return m4
+        return self.C @ x + self.D @ u + v
 
     def simulate(self, f_u, x0, tf):
         """
@@ -110,17 +122,25 @@ class StateSpaceDiscreteLinear(object):
 
         """
         # pylint: disable=too-many-locals, no-member
-        x0 = np.matrix(x0)
-        assert x0.shape[1] == 1
+
+        # x0 = np.matrix(x0)  # TODO
+        # assert x0.shape[1] == 1  # TODO
+
         t = 0
         x = x0
         dt = self.dt
         data = StateSpaceDataList([], [], [], [])
         i = 0
-        n_x = self.A.shape[0]
-        n_y = self.C.shape[0]
-        assert np.matrix(f_u(0, x0, 0)).shape[1] == 1
-        assert np.matrix(f_u(0, x0, 0)).shape[0] == n_y
+
+        # n_x = self.A.shape[0]
+        # n_y = self.C.shape[0]
+        # n_u = self.B.shape[1]  # TODO
+        n_x = np.matrix(self.A).shape[0]
+        n_u = np.matrix(self.B).shape[1]
+        n_y = np.matrix(self.C).shape[0]
+
+        # assert np.matrix(f_u(0, x0, 0)).shape[1] == 1  # TODO
+        # assert np.matrix(f_u(0, x0, 0)).shape[0] == n_u  # TODO
 
         # take square root of noise cov to prepare for noise sim
         if np.linalg.norm(self.Q) > 0:
@@ -137,13 +157,16 @@ class StateSpaceDiscreteLinear(object):
         while t + dt < tf:
             u = f_u(t, x, i)
             v = sqrtR.dot(np.random.randn(n_y, 1))
+            # print("u.shape: {}, x.shape: {}, v.shape: {}".format(u.shape, x.shape, v.shape))
             y = self.measurement(x, u, v)
             data.append(t, x, y, u)
             w = sqrtQ.dot(np.random.randn(n_x, 1))
             x = self.dynamics(x, u, w)
             t += dt
             i += 1
-        return data.to_StateSpaceDataArray()
+        # return data.to_StateSpaceDataArray()
+        data = data.to_StateSpaceDataArray()
+        return data
 
     def __repr__(self):
         return repr(self.__dict__)
@@ -184,11 +207,12 @@ class StateSpaceDataList(object):
         Converts to an state space data  array object.
         With fixed sizes.
         """
-        return StateSpaceDataArray(
+        ssd1 = StateSpaceDataArray(
             t=np.array(self.t).T,
             x=np.array(self.x).T,
             y=np.array(self.y).T,
             u=np.array(self.u).T)
+        return ssd1
 
 
 class StateSpaceDataArray(object):
@@ -198,12 +222,12 @@ class StateSpaceDataArray(object):
 
     def __init__(self, t, x, y, u):
 
-        self.t = np.matrix(t)
-        self.x = np.matrix(x)
-        self.y = np.matrix(y)
-        self.u = np.matrix(u)
+        self.t = t
+        self.x = x
+        self.y = y
+        self.u = u
 
-        assert self.t.shape[0] == 1
+        # assert self.t.shape[0] == 1
         assert self.x.shape[0] < self.x.shape[1]
         assert self.y.shape[0] < self.y.shape[1]
         assert self.u.shape[0] < self.u.shape[1]
@@ -232,6 +256,8 @@ class StateSpaceDataArray(object):
             plt.plot(t, y)
         if plot_u:
             plt.plot(t, u)
+
+
 
 
 # vim: set et fenc=utf-8 ft=python ff=unix sts=0 sw=4 ts=4 :
