@@ -32,18 +32,18 @@ class StateSpaceDiscreteLinear(object):
         n_u = np.matrix(B).shape[1]
         n_y = np.matrix(C).shape[0]
 
-        # assert self.A.shape[1] == n_x
-        # assert self.B.shape[0] == n_x
-        # assert self.C.shape[1] == n_x
-        # assert self.D.shape[0] == n_y
-        # assert self.D.shape[1] == n_u
-        # assert self.Q.shape[0] == n_x
-        # assert self.Q.shape[1] == n_x
-        # # assert self.R.shape[0] == n_u
-        # # assert self.R.shape[1] == n_u
-        # assert self.R.shape[0] == n_y  #TODO:
-        # assert self.R.shape[1] == n_y  #TODO:
-        # assert np.matrix(dt).shape == (1, 1)
+        assert self.A.shape[1] == n_x
+        assert self.B.shape[0] == n_x
+        assert self.C.shape[1] == n_x
+        assert self.D.shape[0] == n_y
+        assert self.D.shape[1] == n_u
+        assert self.Q.shape[0] == n_x
+        assert self.Q.shape[1] == n_x
+        # assert self.R.shape[0] == n_u
+        # assert self.R.shape[1] == n_u
+        assert self.R.shape[0] == n_y  #TODO:
+        assert self.R.shape[1] == n_y  #TODO:
+        assert np.matrix(dt).shape == (1, 1)
 
     def dynamics(self, x, u, w):
         """
@@ -63,12 +63,16 @@ class StateSpaceDiscreteLinear(object):
         x(k+1) : The next state.
 
         """
-        x = np.array(np.matrix(x))
-        u = np.array(np.matrix(u))
-        w = np.array(np.matrix(w))
+        # x = np.array(np.matrix(x))
+        # u = np.array(np.matrix(u))
+        # w = np.array(np.matrix(w))
         # assert x.shape[1] == 1  # TODO
         # assert u.shape[1] == 1  # TODO
         # assert w.shape[1] == 1  # TODO
+        # x = np.array(np.matrix(x))
+        # u = np.array(np.matrix(u))
+        # w = np.array(np.matrix(w))
+
         return self.A @ x + self.B @ u + w
 
     def measurement(self, x, u, v):
@@ -89,12 +93,12 @@ class StateSpaceDiscreteLinear(object):
         y(k) : The current measurement
         """
 
-        x = np.array(np.matrix(x))  # TODO
-        u = np.array(np.matrix(u))  # TODO
-        v = np.array(np.matrix(v))  # TODO
-        assert x.shape[1] == 1  # TODO
-        assert u.shape[1] == 1  # TODO
-        assert v.shape[1] == 1  # TODO
+        # x = np.array(np.matrix(x))  # TODO
+        # u = np.array(np.matrix(u))  # TODO
+        # v = np.array(np.matrix(v))  # TODO
+        # assert x.shape[1] == 1  # TODO
+        # assert u.shape[1] == 1  # TODO
+        # assert v.shape[1] == 1  # TODO
 
         # print("self.C.shape: {}, x.shape: {}, self.D.shape: {}, u.shape: {}, v.shape: {}".format(self.C.shape, x.shape, self.D.shape, u.shape, v.shape))
         # return self.C*x + self.D*u + v

@@ -167,10 +167,10 @@ def nrms(data_fit, data_true):
     Normalized root mean square error.
     """
     # root mean square error
-    rms = np.mean(np.linalg.norm(np.matrix(data_fit) - np.matrix(data_true), axis=0))
+    rms = np.mean(np.linalg.norm(data_fit - data_true, axis=0))
 
     # normalization factor is the max - min magnitude, or 2 times max dist from mean
-    norm_factor = 2 * np.linalg.norm(data_true - np.mean(np.matrix(data_true), axis=1), axis=0).max()
+    norm_factor = 2 * np.linalg.norm(data_true - np.mean(data_true, axis=1), axis=0).max()
 
     return (norm_factor - rms)/norm_factor
 
@@ -179,7 +179,8 @@ def prbs(n):
     """
     Pseudo random binary sequence.
     """
-    return np.where(np.random.rand(n) > 0.5, 0, 1)
+    p1 = np.where(np.random.rand(n) > 0.5, 0, 1)
+    return p1
 
 
 # vim: set et fenc=utf-8 ft=python  ff=unix sts=4 sw=4 ts=4 :
