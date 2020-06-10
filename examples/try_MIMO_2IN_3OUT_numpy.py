@@ -1,10 +1,11 @@
 import sysid
+import sysid.subspace
 import time
 import pandas as pd
 import scipy
 
-# import numpy as np
-import cupy as np
+import numpy as np
+# import cupy as np
 
 simulation_example = False
 
@@ -51,7 +52,7 @@ dt = 1
 plot_stuff = False
 
 # TODO: check with randn 500 IN, 3 OUT
-data_u = np.random.randn(50, tf)
+data_u = np.random.randn(150, tf)
 data_y = np.random.randn(3, tf)
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))

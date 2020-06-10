@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sysid import ss
+from sysid import ss_cupy
 
 # pylint: disable=invalid-name, no-self-use
 
@@ -21,7 +21,7 @@ class TestSS(unittest.TestCase):
         """
         Check state space manipulations.
         """
-        data = ss.StateSpaceDataList([], [], [], [])
+        data = ss_cupy.StateSpaceDataList([], [], [], [])
         for i in range(10):
             data.append(t=i, x=1, y=2, u=3)
         data = data.to_StateSpaceDataArray()
@@ -30,7 +30,7 @@ class TestSS(unittest.TestCase):
         """
         State space discrete linear.
         """
-        sys1 = ss.StateSpaceDiscreteLinear(
+        sys1 = ss_cupy.StateSpaceDiscreteLinear(
             A=0.9, B=0.01, C=1, D=0, Q=0, R=0, dt=0.1)
         x0 = 1
         u0 = 1

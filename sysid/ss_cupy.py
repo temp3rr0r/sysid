@@ -1,9 +1,9 @@
 """
 This module performs system identification.
 """
-import numpy as np
+# import numpy as np
+import cupy as np
 
-import scipy.linalg
 import matplotlib.pyplot as plt
 
 # pylint: disable=invalid-name, too-few-public-methods, no-self-use
@@ -136,24 +136,27 @@ class StateSpaceDiscreteLinear(object):
         data = StateSpaceDataList([], [], [], [])
         i = 0
 
-        # n_x = self.A.shape[0]
-        # n_y = self.C.shape[0]
-        # n_u = self.B.shape[1]  # TODO
-        n_x = np.matrix(self.A).shape[0]
-        n_u = np.matrix(self.B).shape[1]
-        n_y = np.matrix(self.C).shape[0]
+        # n_x = np.matrix(self.A).shape[0]  # TODO
+        # n_u = np.matrix(self.B).shape[1]
+        # n_y = np.matrix(self.C).shape[0]
+
+        n_x = self.A.shape[0]
+        n_u = self.B.shape[1]
+        n_y = self.C.shape[0]
 
         # assert np.matrix(f_u(0, x0, 0)).shape[1] == 1  # TODO
         # assert np.matrix(f_u(0, x0, 0)).shape[0] == n_u  # TODO
 
         # take square root of noise cov to prepare for noise sim
         if np.linalg.norm(self.Q) > 0:
-            sqrtQ = scipy.linalg.sqrtm(self.Q)
+            # sqrtQ = scipy.linalg.sqrtm(self.Q)  # TODO: sqrt from cupy, NOT scipy?
+            sqrtQ = np.linalg.matrix_power(self.Q, -2)
         else:
             sqrtQ = self.Q
 
         if np.linalg.norm(self.R) > 0:
-            sqrtR = scipy.linalg.sqrtm(self.R)
+            # sqrtR = scipy.linalg.sqrtm(self.R)  # TODO: sqrt from cupy, NOT scipy?
+            sqrtR = np.linalg.matrix_power(self.R, -2)
         else:
             sqrtR = self.R
 
@@ -224,15 +227,15 @@ class StateSpaceDataArray(object):
 
     def __init__(self, t, x, y, u):
 
-        self.t = np.array(np.matrix(t))
-        self.x = np.array(np.matrix(x))
-        self.y = np.array(np.matrix(y))
-        self.u = np.array(np.matrix(u))
+        # self.t = np.array(np.matrix(t))  # TODO: cupy doesn't know matrix datatype
+        # self.x = np.array(np.matrix(x))
+        # self.y = np.array(np.matrix(y))
+        # self.u = np.array(np.matrix(u))
 
-        # self.t = t
-        # self.x = x
-        # self.y = y
-        # self.u = u
+        self.t = t
+        self.x = x
+        self.y = y
+        self.u = u
 
         # assert self.t.shape[0] == 1
         # assert self.x.shape[0] < self.x.shape[1]
