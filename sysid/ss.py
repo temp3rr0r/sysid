@@ -63,15 +63,6 @@ class StateSpaceDiscreteLinear(object):
         x(k+1) : The next state.
 
         """
-        # x = np.array(np.matrix(x))
-        # u = np.array(np.matrix(u))
-        # w = np.array(np.matrix(w))
-        # assert x.shape[1] == 1  # TODO
-        # assert u.shape[1] == 1  # TODO
-        # assert w.shape[1] == 1  # TODO
-        # x = np.array(np.matrix(x))
-        # u = np.array(np.matrix(u))
-        # w = np.array(np.matrix(w))
 
         return self.A @ x + self.B @ u + w
 
@@ -101,13 +92,14 @@ class StateSpaceDiscreteLinear(object):
         # assert v.shape[1] == 1  # TODO
 
         # print("self.C.shape: {}, x.shape: {}, self.D.shape: {}, u.shape: {}, v.shape: {}".format(self.C.shape, x.shape, self.D.shape, u.shape, v.shape))
-        # return self.C*x + self.D*u + v
 
-        m1 = self.C @ x
-        m2 = self.D @ u
-        m3 = m1 + m2
-        m4 = m3 + v
-        return m4
+        # m1 = self.C @ x
+        # m2 = self.D @ u
+        # m3 = m1 + m2
+        # m4 = m3 + v
+        # return m4
+
+        return self.C @ x + self.D @ u + v
 
     def simulate(self, f_u, x0, tf):
         """
@@ -167,9 +159,7 @@ class StateSpaceDiscreteLinear(object):
             x = self.dynamics(x, u, w)
             t += dt
             i += 1
-        # return data.to_StateSpaceDataArray()
-        data = data.to_StateSpaceDataArray()
-        return data
+        return data.to_StateSpaceDataArray()
 
     def __repr__(self):
         return repr(self.__dict__)
@@ -225,15 +215,20 @@ class StateSpaceDataArray(object):
 
     def __init__(self, t, x, y, u):
 
+        # self.t = t
+        # self.x = x
+        # self.y = y
+        # self.u = u
+
         self.t = np.array(np.matrix(t))
         self.x = np.array(np.matrix(x))
         self.y = np.array(np.matrix(y))
         self.u = np.array(np.matrix(u))
 
         # assert self.t.shape[0] == 1
-        assert self.x.shape[0] < self.x.shape[1]
-        assert self.y.shape[0] < self.y.shape[1]
-        assert self.u.shape[0] < self.u.shape[1]
+        # assert self.x.shape[0] < self.x.shape[1]
+        # assert self.y.shape[0] < self.y.shape[1]
+        # assert self.u.shape[0] < self.u.shape[1]
 
     def to_StateSpaceDataList(self):
         """

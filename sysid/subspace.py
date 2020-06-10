@@ -51,10 +51,8 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     assert p > 1
 
     # setup matrices
-    # y = np.matrix(y)
     y = np.array(y)
     n_y = y.shape[0]
-    # u = np.matrix(u)
     u = np.array(u)
     n_u = u.shape[0]
     w = np.vstack([y, u])
@@ -91,10 +89,8 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     # given: W1 O_i W2 = G_i Xd_p
     # want to solve for G_i, but know product, and not Xd_p
     # so can only find Xd_p up to a similarity transformation
-    # W1 = np.matrix(np.eye(O_i.shape[0]))
     W1 = np.eye(O_i.shape[0])
 
-    # W2 = np.matrix(np.eye(O_i.shape[1]))
     W2 = np.eye(O_i.shape[1])
     U0, s0, VT0 = linalg.svd(W1 @ O_i @ W2)  # pylint: disable=unused-variable
 
@@ -114,7 +110,6 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
 
     # step 4, determine Gi and Gim
     # ------------------------------------------
-    # G_i = W1.I*U1*np.matrix(np.diag(np.sqrt(s0[:n_x])))
     G_i = linalg.pinv(W1) @ U1 @ np.diag(np.sqrt(s0[:n_x]))
     G_im = G_i[:-n_y, :]  # check
 
@@ -130,8 +125,6 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     Y_ii = Y[n_y*p:n_y*(p+1), :]
     U_ii = U[n_u*p:n_u*(p+1), :]
 
-    # a_mat = np.matrix(np.vstack([Xd_ip, Y_ii]))
-    # b_mat = np.matrix(np.vstack([Xd_i, U_ii]))
     a_mat = np.vstack([Xd_ip, Y_ii])
     b_mat = np.vstack([Xd_i, U_ii])
 
