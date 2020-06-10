@@ -1,8 +1,8 @@
 """
 This module performs system identification.
 """
-import numpy as np
-# import cupy as np
+# import numpy as np
+import cupy as np
 
 import scipy.linalg
 import matplotlib.pyplot as plt
@@ -150,12 +150,14 @@ class StateSpaceDiscreteLinear(object):
 
         # take square root of noise cov to prepare for noise sim
         if np.linalg.norm(self.Q) > 0:
-            sqrtQ = scipy.linalg.sqrtm(self.Q)
+            # sqrtQ = scipy.linalg.sqrtm(self.Q)  # TODO: sqrt from cupy, NOT scipy?
+            sqrtQ = np.linalg.matrix_power(self.Q, -2)
         else:
             sqrtQ = self.Q
 
         if np.linalg.norm(self.R) > 0:
-            sqrtR = scipy.linalg.sqrtm(self.R)
+            # sqrtR = scipy.linalg.sqrtm(self.R)  # TODO: sqrt from cupy, NOT scipy?
+            sqrtR = np.linalg.matrix_power(self.R, -2)
         else:
             sqrtR = self.R
 
@@ -226,15 +228,15 @@ class StateSpaceDataArray(object):
 
     def __init__(self, t, x, y, u):
 
-        self.t = np.array(np.matrix(t))
-        self.x = np.array(np.matrix(x))
-        self.y = np.array(np.matrix(y))
-        self.u = np.array(np.matrix(u))
+        # self.t = np.array(np.matrix(t))  # TODO: cupy doesn't know matrix datatype
+        # self.x = np.array(np.matrix(x))
+        # self.y = np.array(np.matrix(y))
+        # self.u = np.array(np.matrix(u))
 
-        # self.t = t
-        # self.x = x
-        # self.y = y
-        # self.u = u
+        self.t = t
+        self.x = x
+        self.y = y
+        self.u = u
 
         # assert self.t.shape[0] == 1
         # assert self.x.shape[0] < self.x.shape[1]

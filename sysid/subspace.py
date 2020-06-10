@@ -4,8 +4,8 @@ This module performs subspace system identification.
 It enforces that matrices are used instead of arrays
 to avoid dimension conflicts.
 """
-import numpy as np
-# import cupy as np
+# import numpy as np
+import cupy as np
 
 from scipy import linalg
 
@@ -29,7 +29,8 @@ def project(A):
     """
     Creates a projection matrix onto the rowspace of A.
     """
-    return A.T @ linalg.pinv(A @ A.T) @ A
+    # return A.T @ linalg.pinv(A @ A.T) @ A
+    return A.T @ np.linalg.pinv(A @ A.T) @ A
 
 
 def project_perp(A):
@@ -45,7 +46,7 @@ def project_oblique(B, C):
     Projects along rowspace of B onto rowspace of C.
     """
     proj_B_perp = project_perp(B)
-    return proj_B_perp @ linalg.pinv(C @ proj_B_perp) @ C
+    return proj_B_perp @ np.linalg.pinv(C @ proj_B_perp) @ C
 
 
 def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
@@ -94,7 +95,7 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     W1 = np.eye(O_i.shape[0])
 
     W2 = np.eye(O_i.shape[1])
-    U0, s0, VT0 = linalg.svd(W1 @ O_i @ W2)  # pylint: disable=unused-variable
+    U0, s0, VT0 = np.linalg.svd(W1 @ O_i @ W2)  # pylint: disable=unused-variable
 
     # step 3, determine the order by inspecting the singular
     # ------------------------------------------
@@ -102,6 +103,7 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     # print s0
     if order == -1:
         n_x = np.where(s0/s0.max() > s_tol)[0][-1] + 1
+        n_x = int(n_x)  # TODO: cupy doesn't see it as int, but as ndarray
     else:
         n_x = order
     # print("n_x", n_x)
@@ -112,14 +114,14 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
 
     # step 4, determine Gi and Gim
     # ------------------------------------------
-    G_i = linalg.pinv(W1) @ U1 @ np.diag(np.sqrt(s0[:n_x]))
+    G_i = np.linalg.pinv(W1) @ U1 @ np.diag(np.sqrt(s0[:n_x]))
     G_im = G_i[:-n_y, :]  # check
 
     # step 5, determine Xd_ip and Xd_p
     # ------------------------------------------
     # only know Xd up to a similarity transformation
-    Xd_i = linalg.pinv(G_i) @ O_i
-    Xd_ip = linalg.pinv(G_im) @ O_im
+    Xd_i = np.linalg.pinv(G_i) @ O_i
+    Xd_ip = np.linalg.pinv(G_im) @ O_im
 
     # step 6, solve the set of linear eqs
     # for A, B, C, D
@@ -131,7 +133,7 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     b_mat = np.vstack([Xd_i, U_ii])
 
     # ss_mat = a_mat*b_mat.I
-    ss_mat = a_mat @ linalg.pinv(b_mat)
+    ss_mat = a_mat @ np.linalg.pinv(b_mat)
 
     A_id = ss_mat[:n_x, :n_x]
     B_id = ss_mat[:n_x, n_x:]
@@ -145,14 +147,14 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     assert D_id.shape[1] == n_u
 
     if np.linalg.matrix_rank(C_id) == n_x:
-        T = linalg.pinv(C_id)  # try to make C identity, want it to look like state feedback
+        T = np.linalg.pinv(C_id)  # try to make C identity, want it to look like state feedback
     else:
         T = np.eye(n_x)
 
     Q_id = np.zeros((n_x, n_x))
     R_id = np.zeros((n_y, n_y))
     sys = ss.StateSpaceDiscreteLinear(
-        A=linalg.pinv(T) @ A_id @ T, B=linalg.pinv(T) @ B_id, C=C_id @ T, D=D_id,
+        A=np.linalg.pinv(T) @ A_id @ T, B=np.linalg.pinv(T) @ B_id, C=C_id @ T, D=D_id,
         Q=Q_id, R=R_id, dt=dt)
     return sys
 
