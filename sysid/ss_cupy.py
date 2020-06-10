@@ -1,17 +1,13 @@
 """
 This module performs system identification.
 """
-# import numpy as np
 import cupy as np
+import scipy
 
 import matplotlib.pyplot as plt
 
-# pylint: disable=invalid-name, too-few-public-methods, no-self-use
-
-
 __all__ = ['StateSpaceDiscreteLinear',
            'StateSpaceDataList', 'StateSpaceDataArray']
-
 
 class StateSpaceDiscreteLinear(object):
     """
@@ -149,14 +145,12 @@ class StateSpaceDiscreteLinear(object):
 
         # take square root of noise cov to prepare for noise sim
         if np.linalg.norm(self.Q) > 0:
-            # sqrtQ = scipy.linalg.sqrtm(self.Q)  # TODO: sqrt from cupy, NOT scipy?
-            sqrtQ = np.linalg.matrix_power(self.Q, -2)
+            sqrtQ = np.array(scipy.linalg.sqrtm(self.Q.get()))
         else:
             sqrtQ = self.Q
 
         if np.linalg.norm(self.R) > 0:
-            # sqrtR = scipy.linalg.sqrtm(self.R)  # TODO: sqrt from cupy, NOT scipy?
-            sqrtR = np.linalg.matrix_power(self.R, -2)
+            sqrtR = np.array(scipy.linalg.sqrtm(self.R.get()))
         else:
             sqrtR = self.R
 

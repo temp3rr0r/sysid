@@ -47,13 +47,13 @@ if simulation_example:
     print(data3.x.shape)
     print(data3.y.shape)
 
-tf = 365*8
+tf = 365*2
 dt = 1
 plot_stuff = False
 
 # TODO: check with randn 500 IN, 3 OUT
-data_u = np.random.randn(150, tf)
-data_y = np.random.randn(3, tf)
+data_u = np.random.randn(512, tf)
+data_y = np.random.randn(512, tf)
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))
 

@@ -47,13 +47,13 @@ if simulation_example:
     print(data3.x.shape)
     print(data3.y.shape)
 
-tf = 365*8
+tf = 365*2
 dt = 1
 plot_stuff = False
 
 # TODO: check with randn 500 IN, 3 OUT
-data_u = np.random.randn(150, tf)
-data_y = np.random.randn(3, tf)
+data_u = np.random.randn(512, tf)
+data_y = np.random.randn(512, tf)
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))
 
@@ -68,7 +68,7 @@ ss3_id = sysid.subspace_det_algo1(y=data_y, u=data_u,
     s_tol=0.01,  # 0.2
     dt=dt,
     order=-1)
-print("--- Serial:\t\t{} seconds".format(time.time() - start_time))
+print("--- CPU Execution time:\t\t{} seconds".format(time.time() - start_time))
 
 data3_id = ss3_id.simulate(
     f_u=f_prbs_4d,
