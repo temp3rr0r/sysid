@@ -25,7 +25,7 @@ if simulation_example:
     prbs2 = sysid.prbs(1000)
     prbs3 = sysid.prbs(1000)
     def f_prbs_3d(t, x, i):
-        i = i%1000
+        i = i % 1000
         return 2 * np.array([[prbs1[i]-0.5], [prbs2[i]-0.5]])
 
     tf = 10
@@ -47,16 +47,15 @@ if simulation_example:
     print(data3.x.shape)
     print(data3.y.shape)
 
-tf = 365 * 1  # 365 * 5
+tf = 365 * 5  # 365 * 5
 dt = 1
 plot_stuff = False
 
-# TODO: check with randn 500 IN, 3 OUT
-data_u = np.random.randn(200, tf)  # 40 * 45
-data_y = np.random.randn(8, tf)  # 40 * 45
+# TODO: Cupy fp16 works?
+data_u = np.random.randn(40 * 45, tf)  # 40 * 45
+data_y = np.random.randn(40 * 45, tf)  # 40 * 45
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))
-
 
 def f_prbs_4d(t, x, i):
     return np.array([data_u[:, i]]).T

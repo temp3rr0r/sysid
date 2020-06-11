@@ -1,11 +1,9 @@
 """
 This module performs subspace system identification.
 
-It enforces that matrices are used instead of arrays
-to avoid dimension conflicts.
+It enforces that matrices are used instead of arrays to avoid dimension conflicts.
 """
 import sysid
-# import numpy as np
 import cupy as np
 
 __all__ = ['subspace_det_algo1', 'prbs', 'nrms']
@@ -14,7 +12,12 @@ __all__ = ['subspace_det_algo1', 'prbs', 'nrms']
 def block_hankel(data, f):
     """
     Create a block hankel matrix.
-    f : number of rows
+    Args:
+        data (float): Array.
+        f (int): number of rows
+
+    Returns:
+        Hankel matrix of f rows.
     """
     n = data.shape[1] - f
     return np.vstack([
@@ -25,8 +28,12 @@ def block_hankel(data, f):
 def project(A):
     """
     Creates a projection matrix onto the rowspace of A.
+    Args:
+        A (): Matrix (not necessarily square).
+
+    Returns:
+        Projected matrix.
     """
-    # return A.T @ linalg.pinv(A @ A.T) @ A
     return A.T @ np.linalg.pinv(A @ A.T) @ A
 
 
@@ -99,8 +106,7 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
     # values in S and partition the SVD accordingly to obtain U1, S1
     # print s0
     if order == -1:
-        n_x = np.where(s0/s0.max() > s_tol)[0][-1] + 1
-        n_x = int(n_x)  # TODO: cupy doesn't see it as int, but as ndarray
+        n_x = int(np.where(s0 / s0.max() > s_tol)[0][-1] + 1)  # Cupy doesn't see it as int, but as ndarray
     else:
         n_x = order
     # print("n_x", n_x)
@@ -160,13 +166,11 @@ def nrms(data_fit, data_true):
     """
     Normalized root mean square error.
     """
-    # root mean square error
-    rms = np.mean(np.linalg.norm(data_fit - data_true, axis=0))
 
-    # normalization factor is the max - min magnitude, or 2 times max dist from mean
-    norm_factor = 2 * np.linalg.norm(data_true - np.mean(data_true, axis=1), axis=0).max()
+    root_mean_squared_error = np.mean(np.linalg.norm(data_fit - data_true, axis=0))  # RMSE
+    normalization_factor = 2 * np.linalg.norm(data_true - np.mean(data_true, axis=1), axis=0).max()
 
-    return (norm_factor - rms)/norm_factor
+    return (normalization_factor - root_mean_squared_error) / normalization_factor
 
 
 def prbs(n):

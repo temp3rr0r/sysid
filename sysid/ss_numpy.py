@@ -161,7 +161,6 @@ class StateSpaceDiscreteLinear(object):
         while t + dt < tf:
             u = f_u(t, x, i)
             v = sqrtR.dot(np.random.randn(n_y, 1))
-            # print("u.shape: {}, x.shape: {}, v.shape: {}".format(u.shape, x.shape, v.shape))
             y = self.measurement(x, u, v)
             data.append(t, x, y, u)
             w = sqrtQ.dot(np.random.randn(n_x, 1))
