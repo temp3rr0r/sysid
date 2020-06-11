@@ -53,8 +53,8 @@ dt = 1
 plot_stuff = False
 
 # TODO: Cupy fp16 works?
-data_u = np.random.randn(50, tf)  # 40 * 45
-data_y = np.random.randn(4, tf)  # 40 * 45
+data_u = np.random.randn(1600, tf)  # 40 * 45
+data_y = np.random.randn(1600, tf)  # 40 * 45
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))
 
