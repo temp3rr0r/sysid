@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 __all__ = ['StateSpaceDiscreteLinear',
            'StateSpaceDataList', 'StateSpaceDataArray']
 
+
 class StateSpaceDiscreteLinear(object):
     """
     State space for discrete linear systems.

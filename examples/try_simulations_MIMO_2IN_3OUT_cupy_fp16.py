@@ -11,7 +11,6 @@ import numpy
 simulation_example = False
 
 if simulation_example:
-    # 4 internal states MIMO [2 IN, 3 OUT]
     ss3 = sysid.StateSpaceDiscreteLinear(
         A=np.array([[0, 0.01, 0.2, 0.4], [0.1, 0.2, 0.2, 0.3], [0.11, 0.12, 0.21, 0.13], [0.11, 0.12, 0.21, 0.13]], dtype=numpy.float16),  # X x X
         B=np.array([[1, 0], [0, 1], [1, 0], [0, 1]], dtype=numpy.float16),  # X x u
@@ -53,7 +52,7 @@ dt = 1
 plot_stuff = False
 
 # TODO: Cupy fp16 works?
-data_u = np.random.randn(2600, tf)  # 40 * 45
+data_u = np.random.randn(50, tf)  # 40 * 45
 data_y = np.random.randn(4, tf)  # 40 * 45
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))
