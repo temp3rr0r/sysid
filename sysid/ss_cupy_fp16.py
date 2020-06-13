@@ -1,6 +1,7 @@
 """
 This module performs system identification.
 """
+
 import cupy as np
 import scipy
 import numpy
@@ -47,65 +48,56 @@ class StateSpaceDiscreteLinear(object):
         """
         Dynamics
         x(k+1) = A x(k) + B u(k) + w(k)
-
         E(ww^T) = Q
 
-        Parameters
-        ----------
-        x : The current state.
-        u : The current input.
-        w : The current process noise.
+        Args:
+            x (): The current state.
+            u (): The current input.
+            w (): The current process noise.
 
-        Return
-        ------
-        x(k+1) : The next state.
+        Returns:
+            x(k+1): The next state.
 
         """
-
         return self.A @ x + self.B @ u + w
 
     def measurement(self, x, u, v):
         """
         Measurement.
         y(k) = C x(k) + D u(k) + v(k)
-
         E(vv^T) = R
 
-        Parameters
-        ----------
-        x : The current state.
-        u : The current input.
-        v : The current measurement noise.
+        Args:
+            x (): The current state.
+            u (): The current input.
+            w (): The current process noise.
 
-        Return
-        ------
-        y(k) : The current measurement
+        Returns:
+            y(k): The current measurement
+
         """
 
         # assert x.shape[1] == 1  # TODO
         # assert u.shape[1] == 1  # TODO
         # assert v.shape[1] == 1  # TODO
-
         return self.C @ x + self.D @ u + v
 
     def simulate(self, f_u, x0, tf):
         """
         Simulate the system.
 
-        Parameters
-        ----------
-        f_u: The input function  f_u(t, x, i)
-        x0: The initial state.
-        tf: The final time.
+        Args:
+            f_u (): The input function  f_u(t, x, i)
+            x0 (): The initial state.
+            tf (): The final time.
 
-        Return
-        ------
-        data : A StateSpaceDataArray object.
+        Returns:
+            data: A StateSpaceDataArray object.
 
         """
 
         # assert x0.shape[1] == 1  # TODO
-        t = 0
+        t = 0  # TODO: make a full sized ndarray, no lists
         x = x0
         dt = self.dt
         data = StateSpaceDataList([], [], [], [])
@@ -162,7 +154,15 @@ class StateSpaceDataList(object):
 
     def append(self, t, x, y, u):
         """
-        Add to list.
+        Append time-step, state, output and input to lists.
+        Args:
+            t (): Time-tep.
+            x (): State.
+            y (): Output.
+            u (): Input
+
+        Returns: Nothing.
+
         """
         self.t += [t]
         self.x += [x]
@@ -177,20 +177,23 @@ class StateSpaceDataList(object):
 
     def to_StateSpaceDataArray(self):
         """
-        Converts to an state space data  array object.
+        Converts to a state space data array object.
         With fixed sizes.
+
+        Returns: StateSpaceDataArray with nd arrays instead of lists.
+
         """
         ssd1 = StateSpaceDataArray(
             t=np.array(self.t, dtype=numpy.float16).T,
             x=np.array(self.x, dtype=numpy.float16).T,
-            y=np.array(self.y).T,
-            u=np.array(self.u).T)
+            y=np.array(self.y, dtype=numpy.float16).T,
+            u=np.array(self.u, dtype=numpy.float16).T)
         return ssd1
 
 
 class StateSpaceDataArray(object):
     """
-    A fixed size state space data lit.
+    A fixed size state space data list.
     """
 
     def __init__(self, t, x, y, u):
@@ -208,6 +211,8 @@ class StateSpaceDataArray(object):
     def to_StateSpaceDataList(self):
         """
         Convert to StateSpaceDataList that you can append to.
+        Returns: List of nd arrays.
+
         """
         return StateSpaceDataList(
             t=list(self.t),
@@ -218,6 +223,13 @@ class StateSpaceDataArray(object):
     def plot(self, plot_x=False, plot_y=False, plot_u=False):
         """
         Plot data.
+        Args:
+            plot_x (bool): Set True to plot states.
+            plot_y (bool): Set True to plot outputs.
+            plot_u (bool): Set True to plot inputs.
+
+        Returns: Nothing.
+
         """
         t = self.t.T
         x = self.x.T

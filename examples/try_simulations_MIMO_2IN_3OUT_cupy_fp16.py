@@ -15,7 +15,7 @@ if simulation_example:
         A=np.array([[0, 0.01, 0.2, 0.4], [0.1, 0.2, 0.2, 0.3], [0.11, 0.12, 0.21, 0.13], [0.11, 0.12, 0.21, 0.13]], dtype=numpy.float16),  # X x X
         B=np.array([[1, 0], [0, 1], [1, 0], [0, 1]], dtype=numpy.float16),  # X x u
         C=np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]], dtype=numpy.float16),  # y x x
-        D=np.array([[0, 0], [0, 0], [0, 0]]),  # y x u
+        D=np.array([[0, 0], [0, 0], [0, 0]], dtype=numpy.float16),  # y x u
         Q=np.diag([0.2, 0.1, 0.1, 0.1]),  #  X x X
         R=np.diag([0.04, 0.04, 0.04]),  # R? y x y
         dt=0.1)
@@ -49,10 +49,9 @@ if simulation_example:
 
 tf = 2615  # 365 * 5
 dt = 1
-plot_stuff = False
+plot_stuff = True
 
-# TODO: Cupy fp16 works?
-data_u = np.random.randn(50, tf)  # 40 * 45
+data_u = np.random.randn(10, tf)  # 40 * 45
 data_y = np.random.randn(4, tf)  # 40 * 45
 print("data_u.shape: {}, data_y.shape: {}".format(data_u.shape, data_y.shape))
 print("MIMO [{} IN, {} OUT], {} time-steps.".format(data_u.shape[0], data_y.shape[0], data_u.shape[1]))
@@ -74,15 +73,17 @@ data3_id = ss3_id.simulate(
     x0=np.array([np.zeros(ss3_id.A.shape[0])], dtype=numpy.float16).T,
     tf=tf)
 
-# if plot_stuff:
-#     for i in range(3):
-#         pl.figure(figsize=(15,5))
-#         pl.plot(data3_id.t.T, data3_id.y[i,:].T,
-#                 label='$y_{:d}$ true'.format(i))
-#         pl.plot(data3_id.t.T,
-#                 np.matrix(data_y[i,:-1]).T,
-#                 label='$y_{:d}$ id'.format(i))
-#         pl.legend()
-#         pl.grid()
+if plot_stuff:
+    import pylab as pl
+    for i in range(1):
+        pl.figure(figsize=(15, 5))
+        pl.plot(data3_id.t.T)
+        # pl.plot(data3_id.t.T, data3_id.y[i,:].T,
+        #         label='$y_{:d}$ true'.format(i))
+        # pl.plot(data3_id.t.T,
+        #         np.matrix(data_y[i,:-1]).T,
+        #         label='$y_{:d}$ id'.format(i))
+        pl.legend()
+        pl.grid()
 
 print('fit {}%'.format(100*sysid.subspace.nrms(data3_id.y, data_y[:, -1:])))

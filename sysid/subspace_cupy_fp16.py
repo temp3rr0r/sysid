@@ -1,6 +1,5 @@
 """
 This module performs subspace system identification.
-
 It enforces that matrices are used instead of arrays to avoid dimension conflicts.
 """
 import sysid
@@ -19,6 +18,7 @@ def block_hankel(data, f):
 
     Returns:
         Hankel matrix of f rows.
+
     """
     n = data.shape[1] - f
     return np.vstack([
@@ -28,12 +28,13 @@ def block_hankel(data, f):
 
 def project(A):
     """
-    Creates a projection matrix onto the rowspace of A.
+    Creates a projection matrix onto the row-space of A.
     Args:
-        A (): Matrix (not necessarily square).
+        A (float): Matrix (not necessarily square).
 
     Returns:
         Projected matrix.
+
     """
     return A.T @ np.linalg.pinv(A @ A.T) @ A
 
@@ -42,6 +43,12 @@ def project_perp(A):
     """
     Creates a projection matrix onto the space perpendicular to the
     rowspace of A.
+
+    Args:
+        A ():
+
+    Returns:
+
     """
     return np.eye(A.shape[1], dtype=numpy.float16) - project(A)
 
@@ -166,20 +173,18 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
 def nrms(data_fit, data_true):
     """
     Normalized root mean square error.
+    See: https://nl.mathworks.com/help/ident/ref/goodnessoffit.html
     """
 
-    root_mean_squared_error = np.mean(np.linalg.norm(data_fit - data_true, axis=0), dtype=numpy.float16)  # RMSE
-    normalization_factor = 2 * np.linalg.norm(data_true - np.mean(data_true, axis=1), axis=0).max()
+    # root_mean_squared_error = np.mean(np.linalg.norm(data_fit - data_true, axis=0), dtype=numpy.float16)  # RMSE
+    # normalization_factor = 2 * np.linalg.norm(data_true - np.mean(data_true, axis=1), axis=0).max()
+    # return (normalization_factor - root_mean_squared_error) / normalization_factor
 
-    return (normalization_factor - root_mean_squared_error) / normalization_factor
+    return (np.linalg.norm(data_true - data_fit))/(np.linalg.norm(data_true - np.mean(data_true)))
 
 
 def prbs(n):
     """
     Pseudo random binary sequence.
     """
-    p1 = np.where(np.random.rand(n) > 0.5, 0, 1)
-    return p1
-
-
-# vim: set et fenc=utf-8 ft=python  ff=unix sts=4 sw=4 ts=4 :
+    return np.where(np.random.rand(n) > 0.5, 0, 1)
