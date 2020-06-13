@@ -49,7 +49,6 @@ if simulation_example:
 
 tf = 2615  # 365 * 5
 dt = 1
-plot_stuff = True
 
 data_u = np.random.randn(10, tf)  # 40 * 45
 data_y = np.random.randn(4, tf)  # 40 * 45
@@ -73,17 +72,5 @@ data3_id = ss3_id.simulate(
     x0=np.array([np.zeros(ss3_id.A.shape[0])], dtype=numpy.float16).T,
     tf=tf)
 
-if plot_stuff:
-    import pylab as pl
-    for i in range(1):
-        pl.figure(figsize=(15, 5))
-        pl.plot(data3_id.t.T)
-        # pl.plot(data3_id.t.T, data3_id.y[i,:].T,
-        #         label='$y_{:d}$ true'.format(i))
-        # pl.plot(data3_id.t.T,
-        #         np.matrix(data_y[i,:-1]).T,
-        #         label='$y_{:d}$ id'.format(i))
-        pl.legend()
-        pl.grid()
-
-print('fit {}%'.format(100*sysid.subspace.nrms(data3_id.y, data_y[:, -1:])))
+print('NRMSE: {}'.format(sysid.subspace_cupy_fp16.nrms(data3_id.y, data_y[:, 1:])))
+print('SMAPE: {}%'.format(sysid.subspace_cupy_fp16.symmetric_mean_absolute_percentage_error(data3_id.y, data_y[:, 1:])))

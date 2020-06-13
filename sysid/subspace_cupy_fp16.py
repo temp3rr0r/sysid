@@ -6,7 +6,7 @@ import sysid
 import cupy as np
 import numpy
 
-__all__ = ['subspace_det_algo1', 'prbs', 'nrms']
+__all__ = ['subspace_det_algo1', 'prbs', 'nrms', 'symmetric_mean_absolute_percentage_error']
 
 
 def block_hankel(data, f):
@@ -182,6 +182,22 @@ def nrms(data_fit, data_true):
 
     return (np.linalg.norm(data_true - data_fit))/(np.linalg.norm(data_true - np.mean(data_true)))
 
+
+def symmetric_mean_absolute_percentage_error(a, b):
+    """
+
+    Calculates symmetric Mean Absolute Percentage Error (sMAPE).
+
+    Args:
+        a (): ctual values.
+        b (): Predicted values.
+
+    Returns: sMAPE float %.
+
+    """
+    a = np.reshape(a, (-1,))
+    b = np.reshape(b, (-1,))
+    return 100.0 * np.mean(2.0 * np.abs(a - b) / (np.abs(a) + np.abs(b))).item()
 
 def prbs(n):
     """

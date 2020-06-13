@@ -10,7 +10,7 @@ Default imports.
 
 # Uncomment for CUDA numpy fp16
 from sysid.ss_cupy_fp16 import StateSpaceDiscreteLinear, StateSpaceDataList, StateSpaceDataArray
-from sysid.subspace_cupy_fp16 import subspace_det_algo1, prbs, nrms
+from sysid.subspace_cupy_fp16 import subspace_det_algo1, prbs, nrms, symmetric_mean_absolute_percentage_error
 
 # Uncomment for CPU numpy
 # from sysid.ss_numpy import StateSpaceDiscreteLinear, StateSpaceDataList, StateSpaceDataArray
