@@ -215,7 +215,7 @@ def mean_absolute_scaled_error(expected, predicted, naive_lags=1):
     return mean_absolute_error(
         expected, predicted) / mean_absolute_error(expected, mimo_shift(expected, naive_lags, fill_value=expected[0]))
 
-def mimo_shift(array, lags, fill_value=np.nan):
+def mimo_shift(array, lags, fill_value=numpy.nan):
     """
     Shift the 1D or nD time-series by num steps. Returns the Naive-lag time-series.
     :param array: 1D or nD input array.
@@ -223,7 +223,7 @@ def mimo_shift(array, lags, fill_value=np.nan):
     :param fill_value: Value to fill in the first lag steps that are empty.
     :return: 1D or nD naive-lag time-series.
     """
-    result = np.empty_like(array)
+    result = numpy.empty_like(array)
     if lags > 0:
         result[:lags] = fill_value
         result[lags:] = array[:-lags]
