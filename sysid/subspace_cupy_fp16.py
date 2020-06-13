@@ -5,8 +5,10 @@ It enforces that matrices are used instead of arrays to avoid dimension conflict
 import sysid
 import cupy as np
 import numpy
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-__all__ = ['subspace_det_algo1', 'prbs', 'nrms', 'symmetric_mean_absolute_percentage_error']
+__all__ = ['subspace_det_algo1', 'prbs', 'nrms', 'symmetric_mean_absolute_percentage_error',
+           'mean_absolute_scaled_error', 'mean_absolute_percentage_error', 'index_of_agreement']
 
 
 def block_hankel(data, f):
@@ -198,6 +200,62 @@ def symmetric_mean_absolute_percentage_error(a, b):
     a = np.reshape(a, (-1,))
     b = np.reshape(b, (-1,))
     return 100.0 * np.mean(2.0 * np.abs(a - b) / (np.abs(a) + np.abs(b))).item()
+
+
+def mean_absolute_scaled_error(expected, predicted, naive_lags=1):
+    """
+    Mean Absolute Scaled Error (MASE) [1]: MAE / MAE_Naive_lag.
+    [1] Hyndman RJ, Koehler AB. Another look at measures of forecast accuracy. International Journal of Forecasting.
+    2006;22(4):679–688. 10.1016/j.ijforecast.2006.03.001
+    :param expected: 1D or nD array of expected values
+    :param predicted: 1D or nD array of predicted values
+    :param naive_lags: Lags to scale for. Default 1 for non-stationary data.
+    :return: 1D or nD Mean Absolute Scaled Error (MASE).
+    """
+    return mean_absolute_error(
+        expected, predicted) / mean_absolute_error(expected, mimo_shift(expected, naive_lags, fill_value=expected[0]))
+
+def mimo_shift(array, lags, fill_value=np.nan):
+    """
+    Shift the 1D or nD time-series by num steps. Returns the Naive-lag time-series.
+    :param array: 1D or nD input array.
+    :param lags: Steps to shift/lag.
+    :param fill_value: Value to fill in the first lag steps that are empty.
+    :return: 1D or nD naive-lag time-series.
+    """
+    result = np.empty_like(array)
+    if lags > 0:
+        result[:lags] = fill_value
+        result[lags:] = array[:-lags]
+    elif lags < 0:
+        result[lags:] = fill_value
+        result[:lags] = array[-lags:]
+    else:
+        result[:] = array
+    return result
+
+
+def mean_absolute_percentage_error(y_true, y_pred):
+    """
+    Calculates Mean Absolute Percentage Error (MAPE).
+    :param y_true: actual values
+    :param y_pred: predicted values
+    :return: MAPE float.
+    """
+    y_true, y_pred = np.array(y_true), np.array(y_pred)
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100  # In %
+
+
+def index_of_agreement(validation, prediction):
+    """
+    Calculates Index Of Agreement (IOA).
+    :param validation: actual values
+    :param prediction: predicted values
+    :return: IOA float.
+    """
+    return 1 - (np.sum((validation - prediction) ** 2)) / (np.sum((np.abs(prediction -
+      np.mean(validation)) + np.abs(validation - np.mean(validation))) ** 2))
+
 
 def prbs(n):
     """
