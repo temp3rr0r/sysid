@@ -22,7 +22,7 @@ def block_hankel(data, f):
         Hankel matrix of f rows.
 
     """
-    n = data.shape[1] - f
+    n = data.shape[1] - f + 1  # TODO: + 1 or?
     return np.vstack([
         np.hstack([data[:, i + j] for i in range(f)])
         for j in range(n)]).T
@@ -215,6 +215,7 @@ def mean_absolute_scaled_error(expected, predicted, naive_lags=1):
     return mean_absolute_error(
         expected, predicted) / mean_absolute_error(expected, mimo_shift(expected, naive_lags, fill_value=expected[0]))
 
+
 def mimo_shift(array, lags, fill_value=numpy.nan):
     """
     Shift the 1D or nD time-series by num steps. Returns the Naive-lag time-series.
@@ -262,3 +263,14 @@ def prbs(n):
     Pseudo random binary sequence.
     """
     return np.where(np.random.rand(n) > 0.5, 0, 1)
+
+
+
+# def try_projections():  # TODO: causes nose test errors
+#     A = np.random.randn(3, 3)
+#     B = np.random.randn(1, 3)
+#     C = np.vstack([B, np.random.randn(1, 3)])
+#     assert np.allclose(A, A @ project(B) + A @ project_perp(B))
+#     assert np.allclose(A, A @ project_oblique(C, B) + A @ project_oblique(B, C) + A @ project_perp(np.vstack([B, C])))
+
+# try_projections()

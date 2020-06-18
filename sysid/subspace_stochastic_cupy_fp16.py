@@ -1,9 +1,8 @@
 from __future__ import print_function
+# import cupy as np
 import numpy as np
 import matplotlib.pyplot as plt
 
-pinv = np.linalg.pinv
-rank = np.linalg.matrix_rank
 
 def block(B):
     """
@@ -12,18 +11,33 @@ def block(B):
     """
     return np.array(np.bmat(B))
 
-def project(B):
-    """
-    projection onto the rowspace of B
-    """
-    return B.T.dot(pinv(B.dot(B.T))).dot(B)
 
-def project_compliment(B):
+def project(A):
     """
-    projection onto the compliment of the rowspace of B
+    Creates a projection matrix onto the row-space of A.
+    Args:
+        A (float): Matrix (not necessarily square).
+
+    Returns:
+        Projected matrix.
+
     """
-    P = project(B)
-    return np.eye(P.shape[0]) - P
+    return A.T @ np.linalg.pinv(A @ A.T) @ A
+
+
+def project_perp(A):
+    """
+    Creates a projection matrix onto the space perpendicular to the
+    rowspace of A.
+
+    Args:
+        A ():
+
+    Returns:
+
+    """
+    return np.eye(A.shape[1]) - project(A)
+
 
 def project_oblique(B, C):
     """
@@ -31,20 +45,22 @@ def project_oblique(B, C):
     row space of C
     """
     r = C.shape[0]
-    F = block([[C.dot(C.T), C.dot(B.T)], [B.dot(C.T), B.dot(B.T)]])
-    return block([C.T, B.T]).dot(pinv(F)[:,:r]).dot(C)
+    F = block([[C @ C.T, C @ B.T], [B @ C.T, B @ B.T]])
+    return block([C.T, B.T]) @ (np.linalg.pinv(F)[:, :r]) @ C
+
 
 def try_projections():
     A = np.random.randn(3, 3)
     B = np.random.randn(1, 3)
     C = np.vstack([B, np.random.randn(1, 3)])
-    assert np.allclose(A, A.dot(project(B)) + A.dot(project_compliment(B)))
-    assert np.allclose(A, A.dot(project_oblique(C, B)) + A.dot(project_oblique(B, C)) +         A.dot(project_compliment(np.vstack([B, C]))))
+    assert np.allclose(A, A @ project(B) + A @ project_perp(B))
+    assert np.allclose(A, A @ project_oblique(C, B) + A @ project_oblique(B, C) + A @ project_perp(np.vstack([B, C])))
+
 
 try_projections()
 
 
-def block_hankel(data, i):
+def block_hankel(data, f):
     """
     Create a block hankel matrix.
     i : number of rows in future/past block
@@ -52,24 +68,24 @@ def block_hankel(data, i):
     assert len(data.shape) == 2
     s = data.shape[1]
     n_u = data.shape[0]
-    j = s - 2*i + 1
+    j = s - 2 * f + 1
     U = np.vstack([
-        np.hstack([np.array([data[:, ii+jj]]).T for jj in range(j)])
-        for ii in range(2*i)])
+        np.hstack([np.array([data[:, ii + jj]]).T for jj in range(j)])
+        for ii in range(2 * f)])
     return {
         'full': U,
-        'i': U[i*n_u:(i + 1)*n_u, :],
-        'p': U[0:i*n_u, :],
-        'f': U[i*n_u:(2*i)*n_u, :],
-        'pp': U[0:(i + 1)*n_u, :],
-        'fm': U[(i + 1)*n_u:(2*i)*n_u, :],
-        'pm': U[0:(i - 1)*n_u, :],
-        'fp': U[(i - 1)*n_u:(2*i)*n_u, :],
+        'i': U[f * n_u:(f + 1) * n_u, :],
+        'p': U[0:f * n_u, :],
+        'f': U[f * n_u:(2 * f) * n_u, :],
+        'pp': U[0:(f + 1) * n_u, :],
+        'fm': U[(f + 1) * n_u:(2 * f) * n_u, :],
+        'pm': U[0:(f - 1) * n_u, :],
+        'fp': U[(f - 1) * n_u:(2 * f) * n_u, :],
     }
 
 
 class StochasticStateSpaceDiscrete(object):
-    
+
     def __init__(self, A, B, C, D, Q, R, x0, dt):
         self._A = np.array(A)
         self._B = np.array(B)
@@ -111,11 +127,11 @@ class StochasticStateSpaceDiscrete(object):
         B = np.random.randn(n_x, n_u)
         C = np.random.randn(n_y, n_x)
         D = np.random.randn(n_y, n_u)
-        Q = np.diag(0.01*np.random.rand(n_x))
-        R = np.diag(0.01*np.random.rand(n_y))
+        Q = np.diag(0.01 * np.random.rand(n_x))
+        R = np.diag(0.01 * np.random.rand(n_y))
         x0 = np.random.randn(n_x)
         return cls(A, B, C, D, Q, R, x0, dt)
-    
+
     def sim(self, t, u, plot=False):
         u = np.array(u)
         if u.shape[1] != self.n_u:
@@ -154,17 +170,20 @@ class StochasticStateSpaceDiscrete(object):
             plt.legend(x_lines + y_lines, x_labels + y_labels)
             plt.grid()
             plt.xlabel('t')
-            
+
         return y, x
 
     def __repr__(self):
         return repr(self.__dict__)
 
+
 def compute_fitness(y, y_fit):
-    return 1 - np.var(y_fit - y)/np.var(y)
+    return 1 - np.var(y_fit - y) / np.var(y)
+
 
 def normalized_error(y, y_fit):
-    return (y_fit - y)/np.std(y)
+    return (y_fit - y) / np.std(y)
+
 
 def plot_normalized_error(t, y, y_fit):
     e = normalized_error(y, y_fit)
@@ -174,6 +193,7 @@ def plot_normalized_error(t, y, y_fit):
     plt.title('normalized error')
     plt.grid()
 
+
 def plot_output_comparison(t, y, y_fit):
     e = normalized_error(y, y_fit)
     plt.plot(t, y)
@@ -182,9 +202,10 @@ def plot_output_comparison(t, y, y_fit):
     plt.title('output comaprison error')
     plt.grid()
 
+
 def combined_algo_2(y, u, n_x_max, dt):
-    i = 1 + n_x_max**2
-    
+    i = 1 + n_x_max ** 2
+
     # transpose to match definitions in book
     y = y.T
     u = u.T
@@ -195,11 +216,11 @@ def combined_algo_2(y, u, n_x_max, dt):
     U = block_hankel(u, i)
     Y = block_hankel(y, i)
 
-    u_rank = rank(np.cov(U['full']))
-    if u_rank < 2*n_u*i:
+    u_rank = np.linalg.matrix_rank(np.cov(U['full']))
+    if u_rank < 2 * n_u * i:
         print('WARNING: input not persistently exciting'
-            ' order {:d} < {:d}'.format(
-            u_rank, 2*n_u*i))
+              ' order {:d} < {:d}'.format(
+            u_rank, 2 * n_u * i))
 
     W_p = np.vstack([U['p'], Y['p']])
     W_pp = np.vstack([U['pp'], Y['pp']])
@@ -208,9 +229,9 @@ def combined_algo_2(y, u, n_x_max, dt):
     O_im = Y['fm'].dot(project_oblique(U['fm'], W_pp))
 
     W1 = np.eye(n_y, O_i.shape[0])
-    W2 = project_compliment(U['f'])
+    W2 = project_perp(U['f'])
 
-    if rank(W_p) == rank(W_p.dot(W2)):
+    if np.linalg.matrix_rank(W_p) == np.linalg.matrix_rank(W_p.dot(W2)):
         print('WARNING: rank(W_p) != rank(W_p*W2)')
 
     U_, s, VT = np.linalg.svd(W1.dot(O_i).dot(W2), full_matrices=0)
@@ -218,23 +239,23 @@ def combined_algo_2(y, u, n_x_max, dt):
 
     s_tol = 1e-3
     U1 = np.zeros_like(U_)
-    n_x = np.count_nonzero(s/s.max() > s_tol)
-    U1 = np.array(U_[:,:n_x])
+    n_x = np.count_nonzero(s / s.max() > s_tol)
+    U1 = np.array(U_[:, :n_x])
     S1_sqrt = np.diag(np.sqrt(s[:n_x]))
-    Gamma_i = pinv(W1).dot(U1).dot(S1_sqrt)
+    Gamma_i = np.linalg.pinv(W1).dot(U1).dot(S1_sqrt)
     Gamma_im = Gamma_i[:-n_y, :]
 
-    X_i_d = pinv(Gamma_i).dot(O_i)
-    X_ip_d = pinv(Gamma_im).dot(O_im)
+    X_i_d = np.linalg.pinv(Gamma_i).dot(O_i)
+    X_ip_d = np.linalg.pinv(Gamma_im).dot(O_im)
 
     LHS = np.vstack([X_ip_d, Y['i']])
     RHS = np.vstack([X_i_d, U['i']])
-    Coeff = LHS.dot(pinv(RHS))
+    Coeff = LHS.dot(np.linalg.pinv(RHS))
 
-    A = Coeff[:n_x ,:n_x]
-    B = Coeff[:n_x ,n_x:]
-    C = Coeff[n_x: ,:n_x]
-    D = Coeff[n_x: ,n_x:]
+    A = Coeff[:n_x, :n_x]
+    B = Coeff[:n_x, n_x:]
+    C = Coeff[n_x:, :n_x]
+    D = Coeff[n_x:, n_x:]
 
     residuals = LHS - Coeff.dot(RHS)
     QR = np.cov(residuals)
@@ -245,9 +266,10 @@ def combined_algo_2(y, u, n_x_max, dt):
     x0 = np.zeros(n_x)
     return StochasticStateSpaceDiscrete(A, B, C, D, Q, R, x0, dt)
 
+
 def robust_combined_stochastic(y, u, n_x_max, dt):
-    i = 1 + n_x_max**2
-    
+    i = 1 + n_x_max ** 2
+
     # transpose to match definitions in book
     y = y.T
     u = u.T
@@ -258,11 +280,11 @@ def robust_combined_stochastic(y, u, n_x_max, dt):
     U = block_hankel(u, i)
     Y = block_hankel(y, i)
 
-    u_rank = rank(np.cov(U['full']))
-    if u_rank < 2*n_u*i:
+    u_rank = np.linalg.matrix_rank(np.cov(U['full']))
+    if u_rank < 2 * n_u * i:
         raise ValueError('input not persistently exciting'
-            ' order {:d} < {:d}'.format(
-            u_rank, 2*n_u*i))
+                         ' order {:d} < {:d}'.format(
+            u_rank, 2 * n_u * i))
 
     W_p = np.vstack([U['p'], Y['p']])
     W_pp = np.vstack([U['pp'], Y['pp']])
@@ -271,30 +293,30 @@ def robust_combined_stochastic(y, u, n_x_max, dt):
     Z_i = Y['f'].dot(project(np.vstack([W_p, U['f']])))
     Z_ip = Y['fm'].dot(project(np.vstack([W_pp, U['fm']])))
 
-    U_S_VT = O_i.dot(project_compliment(U['f']))
-    U_, s, VT = np.linalg.svd(U_S_VT, full_matrices=0)
+    U_S_VT = O_i.dot(project_perp(U['f']))
+    U_, s, VT = np.linalg.svd(U_S_VT, full_matrices=False)
     assert np.allclose(U_S_VT, U_.dot(np.diag(s).dot(VT)))
 
     s_tol = 1e-3
     U1 = np.zeros_like(U_)
-    n_x = np.count_nonzero(s/s.max() > s_tol)
-    U1 = np.array(U_[:,:n_x])
+    n_x = np.count_nonzero(s / s.max() > s_tol)
+    U1 = np.array(U_[:, :n_x])
     S1_sqrt = np.diag(np.sqrt(s[:n_x]))
     Gamma_i = U1.dot(S1_sqrt)
     Gamma_im = Gamma_i[:-n_y, :]
 
-    LHS = np.vstack([pinv(Gamma_im).dot(Z_ip), Y['i']])
-    RHS = np.vstack([pinv(Gamma_i).dot(Z_i), U['f']])
+    LHS = np.vstack([np.linalg.pinv(Gamma_im).dot(Z_ip), Y['i']])
+    RHS = np.vstack([np.linalg.pinv(Gamma_i).dot(Z_i), U['f']])
     print('LHS shape', LHS.shape)
     print('RHS shape', RHS.shape)
-    Coeff = LHS.dot(pinv(RHS))
+    Coeff = LHS.dot(np.linalg.pinv(RHS))
     print('Coeff', Coeff)
 
     residuals = LHS - Coeff.dot(RHS)
     QR = np.cov(residuals)
-    
-    A = Coeff[:n_x ,:n_x]
-    C = Coeff[n_x: ,:n_x]
+
+    A = Coeff[:n_x, :n_x]
+    C = Coeff[n_x:, :n_x]
     K = Coeff[:, n_x:]
     print('K\n', K.shape)
 
@@ -315,23 +337,25 @@ def robust_combined_stochastic(y, u, n_x_max, dt):
     x0 = np.zeros(n_x)
     return StochasticStateSpaceDiscrete(A, B, C, D, Q, R, x0, dt)
 
+
 def prbs(m, n):
     """
     Pseudo random binary sequence.
     """
     return np.array(np.random.rand(m, n) > 0.5, dtype=np.int) - 0.5
 
+
 def sinusoid(m, f, t):
     u = []
     for i in range(m):
         A = np.random.rand()
-        phase = 2*np.pi*np.random.rand()
+        phase = 2 * np.pi * np.random.rand()
         fi = f + np.random.randn()
-        u.append(A*np.sin(phase + 2*np.pi*fi*t))
+        u.append(A * np.sin(phase + 2 * np.pi * fi * t))
     return np.vstack(u).T
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     n_x = 2
     n_y = 3
     n_u = 4
@@ -354,7 +378,7 @@ if __name__ == "__main__":
     y_fit, x_fit = ss_fit.sim(t, u)
 
     fit = compute_fitness(y, y_fit)
-    print('fitness: {:f}%'.format(100*fit))
+    print('fitness: {:f}%'.format(100 * fit))
 
     plt.subplot(312)
     plot_normalized_error(t, y, y_fit)
