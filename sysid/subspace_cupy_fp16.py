@@ -77,7 +77,7 @@ def subspace_det_algo1(y, u, f, p, s_tol, dt, order=-1):
 
     # make sure the input is column vectors
     assert y.shape[0] < y.shape[1]
-    assert u.shape[0] < u.shape[1]
+    # assert u.shape[0] < u.shape[1]  # TODO: remove constraint of timesteps < IN
 
     W = block_hankel(w, f + p)
     U = block_hankel(u, f + p)
